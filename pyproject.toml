@@ -1,0 +1,22 @@
+# The Momoka fonts, built by mapotofu from mapotofu.toml. The fonts' version is meta.version there;
+# this file only gives the environment to build and test them in.
+[project]
+name = "momoka-gothic"
+version = "0"
+license = "OFL-1.1"
+license-files = ["OFL.txt"]
+requires-python = ">=3.12"
+dependencies = ["mapotofu"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "uharfbuzz>=0.57.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+# A checkout of github.com/lutianyu2001/mapotofu next to this one (CI clones it there).
+mapotofu = { path = "../mapotofu", editable = true }

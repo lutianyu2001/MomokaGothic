@@ -1,0 +1,6 @@
+# Glyphs of the pool Upright that otfautohint left unhinted; written by the build.
+
+[[glyph]]
+name = "uni1DB0"
+characters = "U+1DB0 ᶰ"
+reason = "otfautohint found no stems"

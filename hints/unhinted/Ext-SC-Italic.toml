@@ -1,0 +1,11 @@
+# Glyphs of the pool Ext-SC-Italic that otfautohint left unhinted; written by the build.
+
+[[glyph]]
+name = "glyph04384"
+characters = "U+5EE5 廥"
+reason = "AttributeError 'NoneType' object has no attribute 'e'"
+
+[[glyph]]
+name = "glyph21972"
+characters = "U+3106C 𱁬"
+reason = "GlyphTimeout over 60 s"

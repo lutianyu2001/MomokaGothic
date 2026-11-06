@@ -1,0 +1,6 @@
+# Glyphs of the pool Ext-TC-Italic that otfautohint left unhinted; written by the build.
+
+[[glyph]]
+name = "glyph10263"
+characters = "U+3106C 𱁬"
+reason = "GlyphTimeout over 60 s"

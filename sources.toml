@@ -1,0 +1,66 @@
+# Upstream fonts that Momoka is built from. `mapo fetch` downloads each archive or
+# file into sources/_cache, checks its SHA-256 and places the listed members under sources/.
+
+[[archive]]
+url = "https://github.com/adobe-fonts/source-han-sans/releases/download/2.005R/02_SourceHanSans-VF.zip"
+sha256 = "e5944ea7253878409232f1ffad464e9e93879c0207eaf2960bba327eef89ed81"
+members = { "Variable/OTF/SourceHanSans-VF.otf" = "SourceHanSans-VF.otf", "Variable/OTF/SourceHanSansSC-VF.otf" = "SourceHanSansSC-VF.otf", "Variable/OTF/SourceHanSansTC-VF.otf" = "SourceHanSansTC-VF.otf" }
+
+[[archive]]
+url = "https://github.com/notofonts/latin-greek-cyrillic/releases/download/NotoSans-v2.015/NotoSans-v2.015.zip"
+sha256 = "0c34df072a3fa7efbb7cbf34950e1f971a4447cffe365d3a359e2d4089b958f5"
+members = { "NotoSans/unhinted/variable-ttf/NotoSans[wdth,wght].ttf" = "NotoSans[wdth,wght].ttf", "NotoSans/unhinted/variable-ttf/NotoSans-Italic[wdth,wght].ttf" = "NotoSans-Italic[wdth,wght].ttf" }
+
+[[archive]]
+url = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip"
+sha256 = "6f6376c6ed2960ea8a963cd7387ec9d76e3f629125bc33d1fdcd7eb7012f7bbf"
+members = { "fonts/variable/JetBrainsMono[wght].ttf" = "JetBrainsMono[wght].ttf", "fonts/variable/JetBrainsMono-Italic[wght].ttf" = "JetBrainsMono-Italic[wght].ttf" }
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiGB/releases/download/v1.530/LXGWWenKaiGB-Light.ttf"
+sha256 = "cb103ddeb565682569cf429c35d4b61536b40a0c9c903a48d178b87ea7847310"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiGB/releases/download/v1.530/LXGWWenKaiGB-Regular.ttf"
+sha256 = "5561d48097d92e5ab99fe7b1459d381bbcdff533bfc479207b089c6860c3990e"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiGB/releases/download/v1.530/LXGWWenKaiGB-Medium.ttf"
+sha256 = "6d30174e433f33c582f6dc2e221aea0d53ca70f2f6ee12929bb60577bb24cc73"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiTC/releases/download/v1.530/LXGWWenKaiTC-Light.ttf"
+sha256 = "9bee950ff833892b823e5cec273ebe1cfe2342dd11cb81d9ba2085c5f5a5c551"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiTC/releases/download/v1.530/LXGWWenKaiTC-Regular.ttf"
+sha256 = "6662480a3f95b4a90c80b189c679617a48adce3a505118a6af63ce5a482b83fa"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenkaiTC/releases/download/v1.530/LXGWWenKaiTC-Medium.ttf"
+sha256 = "649efd8516f42d36eacc05480d5dbd2713fb28fbd2bbee8ea76fc40875045c49"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenKai/releases/download/v1.530/LXGWWenKai-Light.ttf"
+sha256 = "9a50e3f0f51fad60d68152d5191bce1a495bfc4b9ceb1cee24833835511d1dca"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenKai/releases/download/v1.530/LXGWWenKai-Regular.ttf"
+sha256 = "2d73eea94ad808999d90c0000c239a84a33b09d4bc6ab6c5b8bbf1eda8a7fc8b"
+
+[[file]]
+url = "https://github.com/lxgw/LxgwWenKai/releases/download/v1.530/LXGWWenKai-Medium.ttf"
+sha256 = "f4b8a34d1f838fe411540cb7c97b1c384ac9738a876c4104500bc42508b2312a"
+
+[[file]]
+url = "https://raw.githubusercontent.com/fontworks-fonts/Klee/8b0532731b63ad8a445ca341d8d7d941079b83ab/fonts/ttf/KleeOne-Regular.ttf"
+sha256 = "74cb0a6523cc22b221ceaa7b78b56cea66512ec14b4145fd0102ffe27c30d084"
+
+[[file]]
+url = "https://raw.githubusercontent.com/fontworks-fonts/Klee/8b0532731b63ad8a445ca341d8d7d941079b83ab/fonts/ttf/KleeOne-SemiBold.ttf"
+sha256 = "9dbb25466c575f6dc8768a28845798f67fa5d47a5d20a6408c30c58d700a1044"
+
+# Unihan is only read by momoka.gen_charsets, which regenerates data/common-*.txt.
+[[file]]
+url = "https://www.unicode.org/Public/17.0.0/ucd/Unihan.zip"
+sha256 = "f7a48b2b545acfaa77b2d607ae28747404ce02baefee16396c5d2d7a8ef34b5e"

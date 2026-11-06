@@ -1,0 +1,160 @@
+name: release
+
+# Builds every font and publishes them on a GitHub release when a tag vX.Y.Z is pushed.
+# Each pool of fonts (see mapotofu.build.pools) is built by a job of its own, with the hints taken
+# from hints/; the package job makes the collections and packs the zips, and the release job, the
+# only one that can write to the repository, builds nothing and creates the release from them.
+# mapotofu, the program building them, is fetched next to this checkout at MAPOTOFU_REF (a commit
+# hash or a tag), where pyproject.toml takes it from.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  MAPOTOFU_REPO: https://github.com/lutianyu2001/mapotofu.git
+  # The mapotofu the fonts are built with: a commit hash or a tag of mapotofu (not a branch, which
+  # moves), so that a release builds the same fonts again.
+  MAPOTOFU_REF: e5e01be0e06a3a3d1c4d4d42b7f8b763341fba4c
+  UV_VERSION: "0.13.4"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      pools: ${{ steps.pools.outputs.pools }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github  # and the files at the top, which a cone always holds
+          persist-credentials: false
+      - name: Clone mapotofu
+        run: |
+          git init -q ../mapotofu
+          git -C ../mapotofu fetch -q --depth 1 "$MAPOTOFU_REPO" "$MAPOTOFU_REF"
+          git -C ../mapotofu checkout -q FETCH_HEAD
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Check that the tag is the version in mapotofu.toml
+        run: |
+          version=$(uv run --no-dev python -c 'from mapotofu.config import VERSION; print(VERSION)')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "tag $GITHUB_REF_NAME but VERSION is $version" >&2
+            exit 1
+          fi
+      - name: List the pools
+        id: pools
+        run: echo "pools=$(uv run --no-dev python -c 'import json; from mapotofu.build import pools; print(json.dumps(list(pools())))')" >> "$GITHUB_OUTPUT"
+
+  pool:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: true
+      matrix:
+        pool: ${{ fromJSON(needs.prepare.outputs.pools) }}
+    steps:
+      - name: Make room on the disk
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Clone mapotofu
+        run: |
+          git init -q ../mapotofu
+          git -C ../mapotofu fetch -q --depth 1 "$MAPOTOFU_REPO" "$MAPOTOFU_REF"
+          git -C ../mapotofu checkout -q FETCH_HEAD
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Restore the source fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: sources
+          key: sources-${{ hashFiles('sources.toml') }}
+      - name: Restore the memory the jobs took last time
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/memory.json
+          key: memory-${{ matrix.pool }}-${{ github.run_id }}
+          restore-keys: memory-${{ matrix.pool }}-
+      - name: Fetch the source fonts
+        run: uv run mapo fetch
+      - name: Build
+        run: uv run mapo all -j 1 --only "${{ matrix.pool }}"
+      - name: Test
+        run: uv run pytest -q
+      - name: Keep the fonts for the package job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pool-${{ matrix.pool }}
+          path: |
+            build/pooled
+            dist/variable
+            dist/static
+          retention-days: 1
+          compression-level: 1
+
+  package:
+    needs: pool
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Make room on the disk
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github  # and the files at the top (OFL.txt, mapotofu.toml, uv.lock)
+          persist-credentials: false
+      - name: Clone mapotofu
+        run: |
+          git init -q ../mapotofu
+          git -C ../mapotofu fetch -q --depth 1 "$MAPOTOFU_REPO" "$MAPOTOFU_REF"
+          git -C ../mapotofu checkout -q FETCH_HEAD
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: pool-*
+          merge-multiple: true
+          path: .
+      - name: Make the collections
+        run: uv run --no-dev mapo collections
+      - name: Pack
+        run: uv run --no-dev mapo release
+      - name: Keep the zips for the release job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: dist/release/*.zip
+          retention-days: 1
+          compression-level: 0  # zips already
+
+  release:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: dist/release
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/release/*.zip -R "$GITHUB_REPOSITORY" --verify-tag \
+            --title "Momoka ${GITHUB_REF_NAME#v}" --generate-notes

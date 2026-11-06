@@ -1,0 +1,6 @@
+# Glyphs of the pool Italic-TC that otfautohint left unhinted; written by the build.
+
+[[glyph]]
+name = "glyph33145"
+characters = "U+9F4E 齎"
+reason = "AttributeError 'NoneType' object has no attribute 'e'"
